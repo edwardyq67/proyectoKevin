@@ -16,6 +16,7 @@ interface Producto {
     presentacion: string;
     laboratorio: string;
     productControlado: number;
+    carrusel: number; // NUEVO CAMPO
     imagen: string;
     categoria_uuid: string;
     activo: number;
@@ -30,6 +31,7 @@ router.get("/productos", async (request: IRequest, env: Env) => {
         const laboratorio = url.searchParams.get("laboratorio");
         const categoria_uuid = url.searchParams.get("categoria");
         const productControlado = url.searchParams.get("controlado");
+        const carrusel = url.searchParams.get("carrusel"); // NUEVO FILTRO
         const search = url.searchParams.get("search");
 
         let query = `
@@ -53,6 +55,12 @@ router.get("/productos", async (request: IRequest, env: Env) => {
         if (productControlado !== null) {
             query += ` AND p.productControlado = ?`;
             params.push(parseInt(productControlado));
+        }
+
+        // NUEVO: Filtro por carrusel
+        if (carrusel !== null) {
+            query += ` AND p.carrusel = ?`;
+            params.push(parseInt(carrusel));
         }
 
         if (search) {
@@ -143,6 +151,7 @@ router.post("/productos", async (request: IRequest, env: Env) => {
             presentacion, 
             laboratorio, 
             productControlado = 0,
+            carrusel = 0, // NUEVO CAMPO con valor por defecto
             imagen = null,
             categoria_uuid 
         } = body;
@@ -198,10 +207,11 @@ router.post("/productos", async (request: IRequest, env: Env) => {
             .prepare(`
                 INSERT INTO productos (
                     uuid, rs, descripcion, principioActivo, presentacion, 
-                    laboratorio, productControlado, imagen, categoria_uuid, activo
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    laboratorio, productControlado, carrusel, imagen, categoria_uuid, activo
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `)
-            .bind(uuid, rs, descripcion, principioActivo, presentacion, laboratorio, productControlado, imagen, categoria_uuid, 1)
+            .bind(uuid, rs, descripcion, principioActivo, presentacion, laboratorio, 
+                  productControlado, carrusel, imagen, categoria_uuid, 1)
             .run();
 
         return new Response(JSON.stringify({
@@ -238,6 +248,7 @@ router.patch("/productos/:uuid", async (request: IRequest, env: Env) => {
             presentacion, 
             laboratorio, 
             productControlado,
+            carrusel, // NUEVO CAMPO
             imagen,
             categoria_uuid 
         } = body;
@@ -321,6 +332,11 @@ router.patch("/productos/:uuid", async (request: IRequest, env: Env) => {
         if (productControlado !== undefined) {
             updates.push("productControlado = ?");
             params.push(productControlado);
+        }
+        // NUEVO: Actualizar carrusel
+        if (carrusel !== undefined) {
+            updates.push("carrusel = ?");
+            params.push(carrusel);
         }
         if (imagen !== undefined) {
             updates.push("imagen = ?");
