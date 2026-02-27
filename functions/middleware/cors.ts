@@ -1,7 +1,7 @@
 import { IRequest } from "itty-router";
 
 export function corsHeaders(request: IRequest) {
-    const allowedOrigins = ["http://localhost:8788", "http://localhost:3001", "https://www.xn--inicialniojesus-6qb.com"];
+    const allowedOrigins = ["http://localhost:8788","http://localhost","https://localhost", "http://localhost:3001", "https://www.xn--inicialniojesus-6qb.com"];
     const origin = request.headers.get("Origin");
 
     // Validar si el origen está en la lista de permitidos
