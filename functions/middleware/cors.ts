@@ -1,7 +1,13 @@
 import { IRequest } from "itty-router";
 
 export function corsHeaders(request: IRequest) {
-    const allowedOrigins = ["http://localhost:8788","http://localhost","https://localhost", "http://localhost:3001", "https://www.xn--inicialniojesus-6qb.com"];
+    const allowedOrigins = [
+        "http://localhost:8788",
+        "http://localhost", 
+        "https://localhost", 
+        "http://localhost:3001", 
+        "https://www.xn--inicialniojesus-6qb.com"
+    ];
     const origin = request.headers.get("Origin");
 
     // Validar si el origen está en la lista de permitidos
@@ -9,7 +15,8 @@ export function corsHeaders(request: IRequest) {
 
     return {
         "Access-Control-Allow-Origin": isAllowedOrigin,
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        // ✅ AGREGADO PATCH A LOS MÉTODOS PERMITIDOS
+        "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
     };
 }
