@@ -7,8 +7,8 @@ export function corsHeaders(request: IRequest) {
         "https://localhost", 
         "http://localhost:3001", 
         "https://www.xn--inicialniojesus-6qb.com",
-        "zengprueba.deivyp.workers.dev",
-        "bienestarzeng.com"
+        "https://zengprueba.deivyp.workers.dev",
+        "https://bienestarzeng.com"
     ];
     const origin = request.headers.get("Origin");
 
