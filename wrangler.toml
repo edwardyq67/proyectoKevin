@@ -20,7 +20,7 @@ database_id = "791b5ebd-c107-4134-8bb9-755421a929db"
 
 [[r2_buckets]]
 binding = "r2_zeng"
-bucket_name = "zeng20613786946"
+bucket_name = "subirglb"
 
 [dev]
 port = 8788
