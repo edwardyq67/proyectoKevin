@@ -33,22 +33,20 @@ router.post("/archivos", async (request: IRequest, env: Env) => {
             });
         }
 
-        // Validar tipo de archivo - AGREGAMOS .glb
+        // Validar tipo de archivo
         const allowedTypes = [
             "image/jpeg", 
             "image/png", 
             "image/webp", 
             "application/pdf",
-            "model/gltf-binary",           // Tipo MIME para .glb
-            "application/octet-stream",     // Alternativa común para .glb
-            "binary/octet-stream"           // Otra alternativa
+            "model/gltf-binary",           
+            "application/octet-stream",     
+            "binary/octet-stream"           
         ];
         
-        // También verificamos por extensión del nombre
         const fileExtension = file.name.split('.').pop()?.toLowerCase();
         const isGlbFile = fileExtension === 'glb';
         
-        // Si es .glb, permitimos incluso si el tipo MIME no coincide exactamente
         if (!isGlbFile && !allowedTypes.includes(file.type)) {
             return new Response(JSON.stringify({
                 success: false,
@@ -59,12 +57,14 @@ router.post("/archivos", async (request: IRequest, env: Env) => {
             });
         }
 
-        // Validar tamaño - MODIFICADO a 10KB máximo
-        const maxSize = 10 * 1024; // 10KB en bytes
+        // 🔥 CAMBIO AQUÍ - Aumentar límite a 50MB
+        const maxSize = 50 * 1024 * 1024; // 50MB en bytes
+        
         if (file.size > maxSize) {
+            const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
             return new Response(JSON.stringify({
                 success: false,
-                error: `El archivo es demasiado grande. Máximo 10KB. Tamaño actual: ${(file.size / 1024).toFixed(2)}KB`
+                error: `El archivo es demasiado grande. Máximo 50MB. Tamaño actual: ${sizeInMB}MB`
             }), {
                 status: 400,
                 headers: corsHeaders(request)
@@ -83,18 +83,19 @@ router.post("/archivos", async (request: IRequest, env: Env) => {
         // Subir a R2
         await env.r2_zeng.put(fileName, arrayBuffer, {
             httpMetadata: {
-                contentType: file.type || "model/gltf-binary", // Usamos el tipo correcto para GLB
+                contentType: file.type || "model/gltf-binary",
                 contentDisposition: `inline; filename="${file.name}"`
             },
             customMetadata: {
                 originalName: file.name,
                 folder: folder,
                 uploadDate: new Date().toISOString(),
-                fileType: fileExtension === 'glb' ? '3d-model' : 'other'
+                fileType: fileExtension === 'glb' ? '3d-model' : 'other',
+                size: file.size.toString()
             }
         });
 
-        // Construir URL pública (asumiendo que el bucket es público)
+        // Construir URL pública
         const publicUrl = `https://pub-1f9ac825129942c08cd16b7649c90824.r2.dev/${fileName}`;
 
         return new Response(JSON.stringify({
@@ -104,7 +105,7 @@ router.post("/archivos", async (request: IRequest, env: Env) => {
                 fileName: fileName,
                 originalName: file.name,
                 size: file.size,
-                sizeKB: (file.size / 1024).toFixed(2) + "KB",
+                sizeMB: (file.size / (1024 * 1024)).toFixed(2) + "MB",
                 type: file.type || "model/gltf-binary",
                 url: publicUrl,
                 folder: folder,
