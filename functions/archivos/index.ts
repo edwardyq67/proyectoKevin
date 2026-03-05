@@ -33,38 +33,24 @@ router.post("/archivos", async (request: IRequest, env: Env) => {
             });
         }
 
-        // Validar tipo de archivo
-        const allowedTypes = [
-            "image/jpeg", 
-            "image/png", 
-            "image/webp", 
-            "application/pdf",
-            "model/gltf-binary",           
-            "application/octet-stream",     
-            "binary/octet-stream"           
-        ];
-        
-        const fileExtension = file.name.split('.').pop()?.toLowerCase();
-        const isGlbFile = fileExtension === 'glb';
-        
-        if (!isGlbFile && !allowedTypes.includes(file.type)) {
+        // Validar tipo de archivo (opcional)
+        const allowedTypes = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
+        if (!allowedTypes.includes(file.type)) {
             return new Response(JSON.stringify({
                 success: false,
-                error: "Tipo de archivo no permitido. Permitidos: JPG, PNG, WEBP, PDF, GLB"
+                error: "Tipo de archivo no permitido. Permitidos: JPG, PNG, WEBP, PDF"
             }), {
                 status: 400,
                 headers: corsHeaders(request)
             });
         }
 
-        // 🔥 CAMBIO AQUÍ - Aumentar límite a 50MB
-        const maxSize = 50 * 1024 * 1024; // 50MB en bytes
-        
+        // Validar tamaño (ej: 10MB máximo)
+        const maxSize = 10 * 1024 * 1024; // 10MB
         if (file.size > maxSize) {
-            const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
             return new Response(JSON.stringify({
                 success: false,
-                error: `El archivo es demasiado grande. Máximo 50MB. Tamaño actual: ${sizeInMB}MB`
+                error: "El archivo es demasiado grande. Máximo 10MB"
             }), {
                 status: 400,
                 headers: corsHeaders(request)
@@ -83,19 +69,17 @@ router.post("/archivos", async (request: IRequest, env: Env) => {
         // Subir a R2
         await env.r2_zeng.put(fileName, arrayBuffer, {
             httpMetadata: {
-                contentType: file.type || "model/gltf-binary",
+                contentType: file.type,
                 contentDisposition: `inline; filename="${file.name}"`
             },
             customMetadata: {
                 originalName: file.name,
                 folder: folder,
-                uploadDate: new Date().toISOString(),
-                fileType: fileExtension === 'glb' ? '3d-model' : 'other',
-                size: file.size.toString()
+                uploadDate: new Date().toISOString()
             }
         });
 
-        // Construir URL pública
+        // Construir URL pública (asumiendo que el bucket es público)
         const publicUrl = `https://pub-1f9ac825129942c08cd16b7649c90824.r2.dev/${fileName}`;
 
         return new Response(JSON.stringify({
@@ -105,11 +89,9 @@ router.post("/archivos", async (request: IRequest, env: Env) => {
                 fileName: fileName,
                 originalName: file.name,
                 size: file.size,
-                sizeMB: (file.size / (1024 * 1024)).toFixed(2) + "MB",
-                type: file.type || "model/gltf-binary",
+                type: file.type,
                 url: publicUrl,
-                folder: folder,
-                is3DModel: fileExtension === 'glb'
+                folder: folder
             }
         }), {
             status: 201,
@@ -120,12 +102,13 @@ router.post("/archivos", async (request: IRequest, env: Env) => {
         console.error("Error al subir archivo:", error);
         return new Response(JSON.stringify({
             success: false,
-            error: "Error al subir el archivo: " 
+            error: "Error al subir el archivo: "
         }), {
             status: 500,
             headers: corsHeaders(request)
         });
     }
 });
+
 
 export default router;

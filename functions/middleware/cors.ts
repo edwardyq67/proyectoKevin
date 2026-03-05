@@ -8,12 +8,7 @@ export function corsHeaders(request: IRequest) {
         "http://localhost:3001", 
         "https://www.xn--inicialniojesus-6qb.com",
         "https://zengprueba.deivyp.workers.dev",
-        "https://bienestarzeng.com",
-        // Agrega tu dominio aquí
-        "http://localhost:3000", // Si usas React/Vite en puerto 3000
-        "https://tusitio.com", // Tu dominio real
-        "https://*.pages.dev", // Si usas Cloudflare Pages
-        "https://*.workers.dev", // Cualquier subdominio de workers
+        "https://bienestarzeng.com"
     ];
     const origin = request.headers.get("Origin");
 
@@ -22,6 +17,7 @@ export function corsHeaders(request: IRequest) {
 
     return {
         "Access-Control-Allow-Origin": isAllowedOrigin,
+        // ✅ AGREGADO PATCH A LOS MÉTODOS PERMITIDOS
         "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
     };
