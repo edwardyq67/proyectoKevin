@@ -5,10 +5,10 @@ export function corsHeaders(request: IRequest) {
         "http://localhost:8788",
         "http://localhost", 
         "https://localhost", 
-        "http://localhost:3000", 
+        "http://localhost:3001", 
         "https://www.xn--inicialniojesus-6qb.com",
         "https://zengprueba.deivyp.workers.dev",
-        "https://farma-track.deivyp.workers.dev"
+        "https://bienestarzeng.com"
     ];
     const origin = request.headers.get("Origin");
 
