@@ -16,7 +16,7 @@ NODE_ENV = "development"
 [[d1_databases]]
 binding = "db_zeng"
 database_name = "db_zeng_d1"
-database_id = "791b5ebd-c107-4134-8bb9-755421a929db"
+database_id = "c9df753e-cfe0-483d-be9b-a6e6b1c19039"
 
 [[r2_buckets]]
 binding = "r2_zeng"
